@@ -1,0 +1,43 @@
+[
+  {
+    "id": "6f99a3bf-d4f9-470c-8e77-ca0b4923a3bb",
+    "status": true
+  },
+  {
+    "id": "bd261d3e-5f7a-411a-8e32-998aa2e2b462",
+    "status": true
+  },
+  {
+    "id": 999,
+    "status": false,
+    "title": "Mate",
+    "description": "Mate prueba",
+    "code": "MATX",
+    "price": 100,
+    "stock": 1,
+    "category": "test",
+    "thumbnails": []
+  },
+  {
+    "id": 999,
+    "status": false,
+    "title": "Mate",
+    "description": "Mate prueba",
+    "code": "MATX",
+    "price": 100,
+    "stock": 1,
+    "category": "test",
+    "thumbnails": []
+  },
+  {
+    "id": 999,
+    "status": false,
+    "title": "Mate",
+    "description": "Mate prueba",
+    "code": "MATX",
+    "price": 100,
+    "stock": 1,
+    "category": "test",
+    "thumbnails": []
+  }
+]
