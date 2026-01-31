@@ -1,4 +1,5 @@
-import fs from 'fs';
+import fs from "fs";
+import crypto from "crypto";
 
 export default class ProductManager {
   constructor(path) {
@@ -7,7 +8,7 @@ export default class ProductManager {
 
   async getProducts() {
     if (!fs.existsSync(this.path)) return [];
-    const data = await fs.promises.readFile(this.path, 'utf-8');
+    const data = await fs.promises.readFile(this.path, "utf-8");
     return JSON.parse(data);
   }
 
@@ -18,14 +19,13 @@ export default class ProductManager {
 
   async addProduct(product) {
     const products = await this.getProducts();
-    
-    const { id, status, ...rest } = product;
 
     const newProduct = {
       id: crypto.randomUUID(),
       status: true,
       ...product
     };
+
     products.push(newProduct);
     await fs.promises.writeFile(this.path, JSON.stringify(products, null, 2));
     return newProduct;
