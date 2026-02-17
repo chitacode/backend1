@@ -1,15 +1,16 @@
 <h1>Productos en tiempo real</h1>
 
-<form id="productForm">
-  <input name="title" placeholder="Nombre" required>
-  <input name="price" placeholder="Precio" required>
-  <button type="submit">Agregar</button>
+<form id="addForm">
+  <input name="title" placeholder="title">
+  <input name="description" placeholder="description">
+  <input name="code" placeholder="code">
+  <input name="price" type="number" placeholder="price" required>
+<input name="stock" type="number" placeholder="stock" required>
+  <input name="category" placeholder="category">
+  <button type="submit">Crear</button>
 </form>
 
-<input id="deleteId" placeholder="ID a eliminar">
-<button id="deleteBtn">Eliminar</button>
-
-<ul id="productList"></ul>
+<ul id="list"></ul>
 
 <script src="/socket.io/socket.io.js"></script>
 <script src="/js/realtime.js"></script>

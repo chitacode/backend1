@@ -2,13 +2,19 @@ import express from "express";
 import { engine } from "express-handlebars";
 import http from "http";
 import { Server } from "socket.io";
-import ProductManager from "./managers/ProductManager.js";
+
+import { connectMongo } from "./config/mongo.js";
+import { ProductModel } from "./models/product.model.js";
+
+import productsRouter from "./routes/products.router.js";
+import cartsRouter from "./routes/carts.router.js";
+import viewsRouter from "./routes/views.router.js";
 
 const app = express();
 const server = http.createServer(app);
 const io = new Server(server);
 
-const productManager = new ProductManager("./src/data/products.json");
+await connectMongo();
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -18,48 +24,42 @@ app.engine("handlebars", engine());
 app.set("view engine", "handlebars");
 app.set("views", "./src/views");
 
-app.get("/home", async (req, res) => {
-  const products = await productManager.getProducts();
-  res.render("home", { products });
+app.use((req, res, next) => {
+  req.io = io;
+  next();
 });
 
-app.get("/realtimeproducts", (req, res) => {
-  res.render("realTimeProducts");
-});
+app.use("/api/products", productsRouter);
+app.use("/api/carts", cartsRouter);
+app.use("/", viewsRouter);
 
-app.get("/api/products", async (req, res) => {
-  const products = await productManager.getProducts();
-  res.json(products);
-});
+io.on("connection", socket => {
+  console.log("cliente conectado");
 
-app.post("/api/products", async (req, res) => {
-  await productManager.addProduct(req.body);
-  const products = await productManager.getProducts();
-  io.emit("products", products);
-  res.json({ status: "ok" });
-});
+  socket.on("addProduct", async data => {
+    try {
+      data.price = Number(data.price);
+      data.stock = Number(data.stock);
 
-app.delete("/api/products/:id", async (req, res) => {
-  await productManager.deleteProduct(req.params.id);
-  const products = await productManager.getProducts();
-  io.emit("products", products);
-  res.json({ status: "ok" });
-});
+      if (Number.isNaN(data.price) || Number.isNaN(data.stock)) {
+        socket.emit("productError", "price y stock deben ser números");
+        return;
+      }
 
-io.on("connection", async socket => {
-  const products = await productManager.getProducts();
-  socket.emit("products", products);
-
-  socket.on("addProduct", async product => {
-    await productManager.addProduct(product);
-    const products = await productManager.getProducts();
-    io.emit("products", products);
+      await ProductModel.create(data);
+      io.emit("productsUpdated");
+    } catch (e) {
+      socket.emit("productError", "error creando producto");
+    }
   });
 
   socket.on("deleteProduct", async id => {
-    await productManager.deleteProduct(id);
-    const products = await productManager.getProducts();
-    io.emit("products", products);
+    try {
+      await ProductModel.findByIdAndDelete(id);
+      io.emit("productsUpdated");
+    } catch (e) {
+      socket.emit("productError", "error eliminando producto");
+    }
   });
 });
 
